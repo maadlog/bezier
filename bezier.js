@@ -14,6 +14,13 @@ GameBox.prototype.gameLoop = function()
     this.currentFrameTime = Date.now();
     this.timeElapsed =  this.currentFrameTime - this.lastFrameTime ;
 
+
+    if (!!dragging) 
+    {
+    	//
+    }
+
+
     this.update(this.timeElapsed); //modify data which is used to render
     this.render();
 }
@@ -30,9 +37,25 @@ var colors = [
 "rgb( 20, 79,111)",	"rgb( 89, 20,116)",	"rgb(165,172, 23)",	"rgb(174,105, 24)",
 "rgb(  5, 58, 86)",	"rgb( 66,  5, 90)",	"rgb(128,134,  1)",	"rgb(136, 74,  1)"
 ];
+
+var points = [
+ 	new Vector(20,500),
+	new Vector(170,30),
+	new Vector(250,70),
+	new Vector(360,100),
+	new Vector(420,200),
+	new Vector(475,200),
+	new Vector(550,100)
+	];
 var trace = [];
 var FinalOnly = false;
 var PrintTrace = false;
+var dragging = false;
+var dragging_index = -1;
+var creating = false;
+
+var mouse = Vector.Zero;
+var game = null;
 
 BezierPoint = function(point) {
     this.point = point;
@@ -122,6 +145,7 @@ BezierGeneral.prototype.render = function()
 // GAME DATA END
 
 GameBox.prototype.register = function(aGameObject) {
+    this.gameObjects = [];
     this.gameObjects.push(aGameObject);
 };
 
@@ -136,35 +160,97 @@ GameBox.prototype.render= function()
 {
     ctx.clearRect(0, 0, canvasWidth, canvasHeight);
 
+	if (!!dragging || !!creating) {
+		ctx.strokeStyle = "green";
+	}
+	 else {
+		ctx.strokeStyle = "black";
+	}
+    ctx.strokeRect(0 , 0, canvasWidth, canvasHeight);
+
     this.gameObjects.forEach( function (value,index,array) {
         value.render();
     });
 
+    points.forEach(function (value,index) {
+    	value.render("green");
+    });
+
     ctx.resetTransform();
 }
+
+function MousePosition(a_canvas, evt) {
+        var rect = a_canvas.getBoundingClientRect();
+        return new  Vector( evt.clientX - rect.left, evt.clientY - rect.top );
+      }
+
 
 function Init(){
     var canvas = document.getElementById('canvas')
     ctx = canvas.getContext("2d");
     canvasWidth = canvas.width;
     canvasHeight = canvas.height;
-    var game = new GameBox();
 
-	var p0 = new Vector(25,500);
-	var p1 = new Vector(100,30);
-	var p2 = new Vector(150,70);
-	var p3 = new Vector(250,100);
+ 
+	canvas.addEventListener('mousedown', function(evt) {
+		dragging_index = points.findIndex(function(point) { return point.Near(MousePosition(canvas, evt),10); } );
+		
+		dragging = dragging_index != (-1);
+		if (!dragging) creating = true;
+	}, false);
+	 
 
-	var p4 = new Vector(250,200);
-	var p5 = new Vector(300,200);
-	var p6 = new Vector(350,100);
+	canvas.addEventListener('mouseup', function(evt) {
+		
+		if (creating){
+			addPoint(MousePosition(canvas, evt));
+			creating = false;
+		}
 
-	var line = new BezierGeneral([p0,p1,p2,p3,p4,p5,p6],true);
+		if (dragging){
+			if(evt.shiftKey){
+				deletePoint(dragging_index);
+			}
+			else {
+				updatePoint(dragging_index);
+			}
+			
+			dragging = false;
+		}
+
+	}, false);
+
+    canvas.addEventListener('mousemove', function(evt) {
+		if (!!dragging || !!creating)
+		{
+		    mouse = MousePosition(canvas, evt);
+		}
+	}, false);
+
+
+    game = new GameBox();
+
+	var line = new BezierGeneral(points,true);
 
     game.register(line);
 
     game.gameLoop();
 }
+
+function addPoint(aVector) {
+	points.push(aVector);
+}
+
+function updatePoint(anIndex) {
+	points[anIndex] = mouse;
+}
+
+function deletePoint(anIndex){
+	points = points.filter(function (elem,index) {
+		return index != anIndex;
+	});
+}
+
 
 function SwapTrace() {
 	PrintTrace = !PrintTrace;
@@ -172,4 +258,11 @@ function SwapTrace() {
 
 function SwapFinal() {
 	FinalOnly = !FinalOnly;
+}
+
+function Restart() {
+	if (points.length < 2) { return; }
+	trace = [];
+	var line = new BezierGeneral(points,true);
+    game.register(line);
 }
