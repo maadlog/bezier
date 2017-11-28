@@ -4,20 +4,37 @@ Vector = function (x,y) {
     this.y = y;
 }
 Vector.Zero = new Vector(0,0);
-Vector.VersorFrom = function (x,y) {
-     var module = Math.sqrt((x**2) + (y**2));
-     return new Vector(x / module,y / module);
+Vector.prototype.Versor = function () {
+     var module = Math.sqrt((this.x**2) + (this.y**2));
+     return new Vector(this.x / module,this.y / module);
 }
-Vector.prototype.Dot = function (scalar) {
+Vector.prototype.ByScalar = function (scalar) {
     return new Vector(this.x * scalar,this.y * scalar);
 }
 Vector.prototype.Plus = function (another) {
     return new Vector(this.x + another.x,this.y + another.y);
 }
+Vector.prototype.Minus = function (another) {
+    return new Vector(this.x - another.x,this.y - another.y);
+}
 
 Vector.prototype.Near = function (another,tolerance) {
     return Math.sqrt((another.x - this.x)**2 + (another.y - this.y)**2) < tolerance;
 }
+
+Vector.prototype.Dot = function (another) {
+    return (this.x * another.x) + (this.y * another.y);
+}
+Vector.prototype.ZCross = function(another) {
+    /*
+    this            other
+                                      [  i   j  k ]
+    [ u1 u2 0 ]   x   [v1 v2 0 ]   =  [ u1  u2  0 ]
+                                      [ v1  v2  0 ]
+    */
+
+    return this.x * another.y - another.x * this.y;
+};
 
 
 Vector.prototype.render = function(color)

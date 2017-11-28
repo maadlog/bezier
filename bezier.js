@@ -14,13 +14,6 @@ GameBox.prototype.gameLoop = function()
     this.currentFrameTime = Date.now();
     this.timeElapsed =  this.currentFrameTime - this.lastFrameTime ;
 
-
-    if (!!dragging) 
-    {
-    	//
-    }
-
-
     this.update(this.timeElapsed); //modify data which is used to render
     this.render();
 }
@@ -50,6 +43,7 @@ var points = [
 var trace = [];
 var FinalOnly = false;
 var PrintTrace = false;
+var AnimationExample = true;
 var dragging = false;
 var dragging_index = -1;
 var creating = false;
@@ -105,7 +99,7 @@ BezierGeneral.prototype.update = function(elapsed_ms)
 	this.length = this.bezier_a.length;
 
 	this.line = new Line(this.bezier_a.point,this.bezier_b.point,this.color);
-	this.point = new Vector(this.bezier_b.point.x - this.bezier_a.point.x,this.bezier_b.point.y - this.bezier_a.point.y).Dot(this.bezier_a.time / this.bezier_a.length).Plus(this.bezier_a.point);
+	this.point = new Vector(this.bezier_b.point.x - this.bezier_a.point.x,this.bezier_b.point.y - this.bezier_a.point.y).ByScalar(this.bezier_a.time / this.bezier_a.length).Plus(this.bezier_a.point);
 
 
 	if (this.FINAL && trace.length <= 250){
@@ -142,12 +136,69 @@ BezierGeneral.prototype.render = function()
 
 };
 
+
+
+PatrollEye = function (bezier_animation) {
+	this.animation = bezier_animation;
+
+	this.prev_position = new Vector(bezier_animation.point.x -1,bezier_animation.point.y);
+	this.position = bezier_animation.point;
+	this.direction = new Vector(1,0);
+
+	this.transform = Matrix.Identity;
+	this.width = 50;
+}
+
+PatrollEye.prototype.update = function(timeElapsed)
+{
+	this.prev_position = this.position;
+	this.position = this.animation.point;
+	this.direction = this.position.Minus(this.prev_position).Versor();
+
+    var translate = Matrix.Translation(-(this.width / 2), -(this.width / 2));
+    
+    var reference_axis = new Vector(1,0);
+    var cross = reference_axis.ZCross(this.direction);
+    var angle_rot = Math.acos(reference_axis.Dot(this.direction) ) * (cross >= 0 ? 1 : -1);
+    var rot = Matrix.Rotation(angle_rot);
+
+	var translate2 = Matrix.Translation( this.position.x, this.position.y);
+    
+    this.transform =  translate2.By(rot).By(translate); 
+}
+
+PatrollEye.prototype.render= function()
+{
+
+	if(!AnimationExample) return;
+
+    var image = document.getElementById("image");
+
+    ctx.transform(this.transform.a, this.transform.b, this.transform.c, this.transform.d, this.transform.e, this.transform.f);
+
+    ctx.drawImage(image, 0, 0, image.width, image.width,
+		0,0,this.width,this.width);
+    // this.position.x, this.position.y, this.width, this.width );
+
+    ctx.resetTransform();
+
+    if(PrintTrace)
+    {
+    	var line = new Line(this.position,this.position.Plus(this.direction.ByScalar(50)),"red");
+    	line.render();
+    }
+    
+}
+
+
+
+
 // GAME DATA END
 
 GameBox.prototype.register = function(aGameObject) {
-    this.gameObjects = [];
     this.gameObjects.push(aGameObject);
 };
+
 
 GameBox.prototype.update = function(timeElapsed)
 {
@@ -232,7 +283,10 @@ function Init(){
 
 	var line = new BezierGeneral(points,true);
 
+	var ball = new PatrollEye(line);
+
     game.register(line);
+    game.register(ball);
 
     game.gameLoop();
 }
@@ -252,6 +306,10 @@ function deletePoint(anIndex){
 }
 
 
+function SwapExample() {
+	AnimationExample = !AnimationExample;
+}
+
 function SwapTrace() {
 	PrintTrace = !PrintTrace;
 }
@@ -263,6 +321,12 @@ function SwapFinal() {
 function Restart() {
 	if (points.length < 2) { return; }
 	trace = [];
+
 	var line = new BezierGeneral(points,true);
+	var ball = new PatrollEye(line);
+	
+	game.gameObjects = [];
     game.register(line);
+    game.register(ball);
+
 }
