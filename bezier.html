@@ -2,13 +2,16 @@
 <html>
     <head>
         <script src="math.js"></script>
-        <script src="animation.js"></script>
         <script src="bezier.js"></script>
     </head>
-	<body onload="Init()">
-		<canvas id="canvas" width="600" height="600"></canvas>
+	<body  onload="Init()">
+		<canvas style="float:left;" id="canvas" width="600" height="600"></canvas>
 	</body>
-
-	<button onclick="SwapTrace()">Swap Trace</button>
-	<button onclick="SwapFinal()">Swap Final</button>
+	<div style="float:left; padding:25px;">
+		<p>Drag points to re-arrange, Shift + Drag to erase them</p>
+		<button onclick="Restart()">Redraw</button>
+		<button onclick="SwapTrace()">Show Trace (Bezier Curve)</button>
+		<button onclick="SwapFinal()">Show Bezier Lines</button>
+	</div>
+	
 </html>
