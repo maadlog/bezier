@@ -27,3 +27,5 @@ BezierGeneral.prototype.update = function(elapsed_ms)
 The recursive definition stands on a simple principle, an N-order Bezier curve consists of a linear Bézier curve (N = 1) between the points of two other Bézier curves of order N-1.
 
 This allows for potentialy infinite anchor points for a path and also provides easy scaling and transforming, since to modify a path, a transformation on the anchor points is enough to regenerate the entire curve.
+
+This non optimized version caps arround 18 anchor points without showing lines or 12 points with full rendering
