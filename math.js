@@ -15,6 +15,11 @@ Vector.prototype.Plus = function (another) {
     return new Vector(this.x + another.x,this.y + another.y);
 }
 
+Vector.prototype.Near = function (another,tolerance) {
+    return Math.sqrt((another.x - this.x)**2 + (another.y - this.y)**2) < tolerance;
+}
+
+
 Vector.prototype.render = function(color)
 {
     ctx.fillStyle = "black";
