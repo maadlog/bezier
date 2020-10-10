@@ -47,10 +47,11 @@ var AnimationExample = true;
 var dragging = false;
 var dragging_index = -1;
 var creating = false;
-const MAX_POINTS_COUNT = 8;
+const MAX_POINTS_COUNT = 10;
 
 var mouse = Vector.Zero;
 var game = null;
+var fpscounter, pointscounter;
 
 BezierPoint = function(point) {
     this.point = point;
@@ -202,6 +203,7 @@ GameBox.prototype.register = function(aGameObject) {
 
 GameBox.prototype.update = function(timeElapsed)
 {
+	fpscounter.textContent = "FPS: " + (1000/timeElapsed).toPrecision(2);
     this.gameObjects.forEach( function (value,index,array) {
             value.update(timeElapsed);
         });
@@ -225,7 +227,8 @@ GameBox.prototype.render= function()
 
     points.forEach(function (value,index) {
     	value.render("green");
-    });
+	});
+	pointscounter.textContent = "Points: " + (points.length);
 
     ctx.resetTransform();
 }
@@ -237,7 +240,9 @@ function MousePosition(a_canvas, evt) {
 
 
 function Init(){
-    var canvas = document.getElementById('canvas');
+	var canvas = document.getElementById('canvas');
+	fpscounter = document.getElementById("fps");
+	pointscounter = document.getElementById("points");
     ctx = canvas.getContext("2d");
     canvasWidth = canvas.width;
     canvasHeight = canvas.height;
@@ -292,7 +297,7 @@ function Init(){
 }
 
 function addPoint(aVector) {
-	if (points.length > MAX_POINTS_COUNT) {
+	if (points.length >= MAX_POINTS_COUNT) {
 		points.splice(0,1)
 	}
 	points.push(aVector);
