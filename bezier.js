@@ -47,6 +47,7 @@ var AnimationExample = true;
 var dragging = false;
 var dragging_index = -1;
 var creating = false;
+const MAX_POINTS_COUNT = 8;
 
 var mouse = Vector.Zero;
 var game = null;
@@ -178,7 +179,6 @@ PatrollEye.prototype.render= function()
 
     ctx.drawImage(image, 0, 0, image.width, image.width,
 		0,0,this.width,this.width);
-    // this.position.x, this.position.y, this.width, this.width );
 
     ctx.resetTransform();
 
@@ -266,18 +266,18 @@ function Init(){
 			}
 			
 			dragging = false;
-			Restart();
 		}
 
+		Restart();
 	}, false);
 
     canvas.addEventListener('mousemove', function(evt) {
 		if (!!dragging || !!creating)
 		{
-		    mouse = MousePosition(canvas, evt);
-		}
+			mouse = MousePosition(canvas, evt);
+			updatePoint(dragging_index);
+		} 
 	}, false);
-
 
     game = new GameBox();
 
@@ -292,11 +292,14 @@ function Init(){
 }
 
 function addPoint(aVector) {
+	if (points.length > MAX_POINTS_COUNT) {
+		points.splice(0,1)
+	}
 	points.push(aVector);
 }
 
 function updatePoint(anIndex) {
-	points[anIndex] = mouse;
+	points[anIndex].setTo(mouse);
 }
 
 function deletePoint(anIndex){

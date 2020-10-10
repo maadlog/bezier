@@ -36,17 +36,21 @@ Vector.prototype.ZCross = function(another) {
     return this.x * another.y - another.x * this.y;
 };
 
+Vector.prototype.setTo = function(anotherVector) {
+    this.x = anotherVector.x;
+    this.y = anotherVector.y;
+}
 
 Vector.prototype.render = function(color)
 {
     ctx.fillStyle = "black";
     ctx.beginPath();
-    ctx.arc(this.x, this.y, 3, 0, 2 * Math.PI, true);
+    ctx.arc(this.x, this.y, 5, 0, 2 * Math.PI, true);
     ctx.fill();
 
     ctx.fillStyle = color;
     ctx.beginPath();
-    ctx.arc(this.x, this.y, 2, 0, 2 * Math.PI, true);
+    ctx.arc(this.x, this.y, 4, 0, 2 * Math.PI, true);
     ctx.fill();
 };
 
