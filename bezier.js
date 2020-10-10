@@ -231,18 +231,17 @@ GameBox.prototype.render= function()
 }
 
 function MousePosition(a_canvas, evt) {
-        var rect = a_canvas.getBoundingClientRect();
-        return new  Vector( evt.clientX - rect.left, evt.clientY - rect.top );
-      }
+	var rect = a_canvas.getBoundingClientRect();
+	return new Vector( evt.clientX - rect.left, evt.clientY - rect.top );
+}
 
 
 function Init(){
-    var canvas = document.getElementById('canvas')
+    var canvas = document.getElementById('canvas');
     ctx = canvas.getContext("2d");
     canvasWidth = canvas.width;
     canvasHeight = canvas.height;
 
- 
 	canvas.addEventListener('mousedown', function(evt) {
 		dragging_index = points.findIndex(function(point) { return point.Near(MousePosition(canvas, evt),10); } );
 		
@@ -267,6 +266,7 @@ function Init(){
 			}
 			
 			dragging = false;
+			Restart();
 		}
 
 	}, false);
