@@ -304,7 +304,10 @@ function addPoint(aVector) {
 }
 
 function updatePoint(anIndex) {
-	points[anIndex].setTo(mouse);
+	let point = points[anIndex];
+	if (point) {
+		point.setTo(mouse);
+	}
 }
 
 function deletePoint(anIndex){
